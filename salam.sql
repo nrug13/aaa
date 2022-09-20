@@ -44,13 +44,21 @@ INSERT [dbo].[Products] ([Name], [Description], [CategoryId], [CreatedDate])
     ,(N'JBL Pulse 3 Black', NULL, 1, '2019-09-15');
 
 select * from Products
---- joinlerle yoxlayaq ( bu,elavedir)
-SELECT [name],[nameof]
-FROM Products
-INNER JOIN Category
-ON Products.CategoryID = Category.id;
 
----prosedurun yazilmasi
+
+
+--- view yarat
+CREATE VIEW [showList] AS
+SELECT [name],[nameof],[createddate]
+FROM Products
+full outer JOIN Category
+ON Products.CategoryID = Category.id;
+select * from showList
+
+
+
+
+
 --create procedure addition
 create procedure addition(
 @name varchar(100),
@@ -66,3 +74,9 @@ begin
 
 
 end
+
+-- silmek ucun 
+--create procedure deletion()
+
+--update ucun
+-- create procedure update()
