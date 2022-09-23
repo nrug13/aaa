@@ -12,6 +12,7 @@ insert into [Category](nameof) values (N'Audio,video'),(N'Kompüter və ofis ava
 select * from [Category]
 --mehsullar ucun cedvel yaratmaq
 create table [Products](
+productID int primary key identity,
 [Name] varchar(100),
 [Description] text,
 [CategoryID] int,
@@ -68,8 +69,18 @@ create procedure addition(
 
 ) as
 begin
+	SET NOCOUNT ON;
+	set xact_abort on;
 	insert into [Products]([Name],[Description]) values (@name,@description)
 	insert into Category([nameof]) values (@categoryName)
+	select @categoryId=[id] from [Category] where [nameof]=@categoryName
+
+	if @categoryId is null
+	begin
+	  insert [Category]([nameof])
+	  values (@categoryName)
+	  set @categoryId=SCOPE_IDENTITY()
+    end
 	
 
 
@@ -77,6 +88,29 @@ end
 
 -- silmek ucun 
 --create procedure deletion()
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create PROCEDURE deleteitem
+@productID int
+AS
+BEGIN
+	set xact_abort on;
+	SET NOCOUNT ON;
+	
+	begin try
+	begin transaction delete_product
+	insert into [Archive].[Products]
+	select [Name]
+           ,[Description]
+           ,[CategoryId]
+           ,[CreatedDate]
+		   ,getdate()
+		   from [Product] where [id]=@productID
+		   
+		   delete from [Product] where [id]=@productID
+		
+   
 
 --update ucun
--- create procedure update()
