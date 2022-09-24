@@ -13,7 +13,7 @@ select * from [Category]
 --mehsullar ucun cedvel yaratmaq
 create table [Products](
 productID int primary key identity,
-[Name] varchar(100),
+[Name] varchar(100) unique,
 [Description] text,
 [CategoryID] int,
 [CreatedDate] DATETIME NOT NULL DEFAULT GETDATE(),
