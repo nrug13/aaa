@@ -106,7 +106,7 @@ BEGIN
            ,[Description]
            ,[CategoryId]
            ,[CreatedDate]
-		   ,getdate()
+		
 		   from [Product] where [id]=@productID
 		   
 		   delete from [Product] where [id]=@productID
