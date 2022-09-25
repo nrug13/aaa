@@ -60,7 +60,7 @@ select * from showList
 
 
 
---create procedure addition
+/*--create procedure addition
 create procedure addition(
 @name varchar(100),
 @description text,
@@ -113,4 +113,101 @@ BEGIN
 		
    
 
---update ucun
+--update ucun*/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-----------daxil et
+create PROCEDURE [dbo].[addition] 
+	@name nvarchar(70),
+	@description nvarchar(70),
+	@categoryName nvarchar(70)
+AS
+BEGIN
+	set xact_abort on;
+	SET NOCOUNT ON;
+	if not exists (select * from [dbo].[Product]
+	where  [Name]=@name)
+	begin 
+	declare @categoryId int
+	select @categoryId=[id] from [dbo].[Category] where [Nameof]=@categoryName
+	if @categoryId is null
+	begin
+	  insert [dbo].[Category]([Nameof])
+	  values (@categoryName)
+	  set @categoryId=SCOPE_IDENTITY()
+    end
+	INSERT INTO [dbo].[Product]
+           ([Name]
+           ,[Description]
+           ,[CategoryId]
+           )
+     VALUES
+           (@name,
+		   @description,
+		   @categoryId)
+		   
+END
+end
+-------update----
+create PROCEDURE [dbo].[update] 
+	@name nvarchar(70),
+	@description nvarchar(70),
+	@categoryName nvarchar(70)
+AS
+BEGIN
+	set xact_abort on;
+	SET NOCOUNT ON;
+	declare @productId int
+	select @productId=[productID] from [dbo].[Products] where [Name]=@name
+	declare @categoryId int
+	select @categoryId=[id] from [dbo].[Category] where [Nameof]=@categoryName
+	if @categoryId is null
+	begin
+	  insert [dbo].[Category]([Nameof])
+	  values (@categoryName)
+	  set @categoryId=SCOPE_IDENTITY()
+    end
+	if @productId is null
+	begin
+	  insert [dbo].[Products]([Name],[Description],[CategoryId])
+	  values (@name,@description,@categoryId)
+	  set @productId=SCOPE_IDENTITY()
+    end
+	else
+	begin
+    Update [dbo].[Products]
+	set [Name]=@name ,[Description]=@description,[CategoryId]=@categoryId
+	where [productid]=@productId
+	end
+END
+-----delete---
+use sqltask2
+
+CREATE DATABASE ARCHIVE
+create PROCEDURE [dbo].[delete] 
+@productId int
+AS
+BEGIN
+	set xact_abort on;
+	SET NOCOUNT ON;
+	begin try
+	begin transaction delete_product
+
+	insert into archive
+		SET IDENTITY_INSERT archive ON;
+
+	select [Name]
+		   ,getdate()
+           ,[Description]
+           ,[CategoryId]
+           ,[CreatedDate]
+		   from [dbo].[Products] where [productid]=@productId
+   delete from [dbo].[Products] where [productid]=@productId
+   commit
+   end try
+   begin catch
+   rollback
+   end catch
+END
