@@ -1,6 +1,5 @@
 create database [sqltask2]
 use [sqltask2]
--- kateqoriyalar ucun cedvel yaratmaq
 create table [Category] (
  id int identity primary key,
 nameof nvarchar(70)
@@ -19,7 +18,6 @@ productID int primary key identity,
 [CreatedDate] DATETIME NOT NULL DEFAULT GETDATE(),
 foreign key (CategoryID) references Category(id)
 )
-drop table Products
 INSERT [dbo].[Products] ([Name], [Description], [CategoryId], [CreatedDate])
     VALUES (N'Wonlex GW100 Pink', NULL, 4, '2019-09-15')
     ,(N'Wonlex Q50 Charisma BLACK', NULL, 4, '2019-09-15')
@@ -43,8 +41,7 @@ INSERT [dbo].[Products] ([Name], [Description], [CategoryId], [CreatedDate])
     ,(N'Musiqi merkezi SONY MHC-V82D', NULL, 1, '2019-09-15')
     ,(N'Speaker Sony SRS-XB21 Wireless', NULL, 1, '2019-09-15')
     ,(N'JBL Pulse 3 Black', NULL, 1, '2019-09-15');
-
-select * from Products
+	select * from Products
 
 
 
@@ -54,72 +51,15 @@ SELECT [name],[nameof],[createddate]
 FROM Products
 full outer JOIN Category
 ON Products.CategoryID = Category.id;
+
 select * from showList
 
-
-
-
-
-/*--create procedure addition
-create procedure addition(
-@name varchar(100),
-@description text,
-@categoryName nvarchar(70)
-
-
-) as
-begin
-	SET NOCOUNT ON;
-	set xact_abort on;
-	insert into [Products]([Name],[Description]) values (@name,@description)
-	insert into Category([nameof]) values (@categoryName)
-	select @categoryId=[id] from [Category] where [nameof]=@categoryName
-
-	if @categoryId is null
-	begin
-	  insert [Category]([nameof])
-	  values (@categoryName)
-	  set @categoryId=SCOPE_IDENTITY()
-    end
-	
-
-
-end
-
--- silmek ucun 
---create procedure deletion()
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-create PROCEDURE deleteitem
-@productID int
-AS
-BEGIN
-	set xact_abort on;
-	SET NOCOUNT ON;
-	
-	begin try
-	begin transaction delete_product
-	insert into [Archive].[Products]
-	select [Name]
-           ,[Description]
-           ,[CategoryId]
-           ,[CreatedDate]
-		
-		   from [Product] where [id]=@productID
-		   
-		   delete from [Product] where [id]=@productID
-		
-   
-
---update ucun*/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 -----------daxil et
-create PROCEDURE [dbo].[addition] 
+create PROCEDURE [addition] 
 	@name nvarchar(70),
 	@description nvarchar(70),
 	@categoryName nvarchar(70)
@@ -127,18 +67,18 @@ AS
 BEGIN
 	set xact_abort on;
 	SET NOCOUNT ON;
-	if not exists (select * from [dbo].[Product]
+	if not exists (select * from [Products]
 	where  [Name]=@name)
 	begin 
 	declare @categoryId int
-	select @categoryId=[id] from [dbo].[Category] where [Nameof]=@categoryName
+	select @categoryId=[id] from [Category] where [Nameof]=@categoryName
 	if @categoryId is null
 	begin
-	  insert [dbo].[Category]([Nameof])
+	  insert [Category]([Nameof])
 	  values (@categoryName)
 	  set @categoryId=SCOPE_IDENTITY()
     end
-	INSERT INTO [dbo].[Product]
+	INSERT INTO [Products]
            ([Name]
            ,[Description]
            ,[CategoryId]
@@ -150,8 +90,8 @@ BEGIN
 		   
 END
 end
--------update----
-create PROCEDURE [dbo].[update] 
+----------------------------------
+create PROCEDURE [update] 
 	@name nvarchar(70),
 	@description nvarchar(70),
 	@categoryName nvarchar(70)
@@ -160,33 +100,35 @@ BEGIN
 	set xact_abort on;
 	SET NOCOUNT ON;
 	declare @productId int
-	select @productId=[productID] from [dbo].[Products] where [Name]=@name
+	select @productId=[productID] from [Products] where [Name]=@name
 	declare @categoryId int
-	select @categoryId=[id] from [dbo].[Category] where [Nameof]=@categoryName
+	select @categoryId=[id] from [Category] where [Nameof]=@categoryName
 	if @categoryId is null
 	begin
-	  insert [dbo].[Category]([Nameof])
+	  insert [Category]([Nameof])
 	  values (@categoryName)
 	  set @categoryId=SCOPE_IDENTITY()
     end
 	if @productId is null
 	begin
-	  insert [dbo].[Products]([Name],[Description],[CategoryId])
+	  insert [Products]([Name],[Description],[CategoryId])
 	  values (@name,@description,@categoryId)
 	  set @productId=SCOPE_IDENTITY()
     end
 	else
 	begin
-    Update [dbo].[Products]
+    Update [Products]
 	set [Name]=@name ,[Description]=@description,[CategoryId]=@categoryId
 	where [productid]=@productId
 	end
 END
------delete---
-use sqltask2
+---------------------------
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 
-CREATE DATABASE ARCHIVE
-create PROCEDURE [dbo].[delete] 
+create PROCEDURE deletedata
 @productId int
 AS
 BEGIN
@@ -194,17 +136,14 @@ BEGIN
 	SET NOCOUNT ON;
 	begin try
 	begin transaction delete_product
-
-	insert into archive
-		SET IDENTITY_INSERT archive ON;
-
+	insert into [myArchive]
 	select [Name]
 		   ,getdate()
            ,[Description]
            ,[CategoryId]
            ,[CreatedDate]
-		   from [dbo].[Products] where [productid]=@productId
-   delete from [dbo].[Products] where [productid]=@productId
+		   from [Products] where [productid]=@productId
+   delete from [Products] where [productid]=@productId
    commit
    end try
    begin catch
